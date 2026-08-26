@@ -9,8 +9,8 @@ Issue.belongsTo(User, { foreignKey: 'creatorId', as: 'creator' });
 User.hasMany(Issue, { foreignKey: 'assigneeId', as: 'assignedIssues' });
 Issue.belongsTo(User, { foreignKey: 'assigneeId', as: 'assignee' });
 
-Issue.hasMany(Comment, { foreignKey: 'issueId', as: 'comments' });
-Comment.belongsTo(Issue, { foreignKey: 'issueId' });
+Issue.hasMany(Comment, { foreignKey: { name: 'issueId', allowNull: false }, as: 'comments', onDelete: 'CASCADE' });
+Comment.belongsTo(Issue, { foreignKey: { name: 'issueId', allowNull: false }, onDelete: 'CASCADE' });
 
 User.hasMany(Comment, { foreignKey: 'authorId', as: 'comments' });
 Comment.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
