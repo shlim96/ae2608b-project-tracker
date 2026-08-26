@@ -1,36 +1,40 @@
 <%- include('../partials/head', { title: issue.title + ' — Project Tracker' }) %>
 
-<div style="display:flex; justify-content: space-between; align-items: center;">
+<div class="page-head">
   <h2><%= issue.title %></h2>
   <% if (canManage) { %>
-    <a class="btn" href="/issues/<%= issue.id %>/edit">Edit</a>
+    <a class="btn btn-secondary" href="/issues/<%= issue.id %>/edit">Edit</a>
   <% } %>
 </div>
 
-<p><span class="status status-<%= issue.status %>"><%= issue.status %></span></p>
-<p><%= issue.description || 'No description.' %></p>
-<p>
-  Created by <strong><%= issue.creator ? issue.creator.name : '—' %></strong>
-  &middot;
-  Assigned to <strong><%= issue.assignee ? issue.assignee.name : '(unassigned)' %></strong>
-</p>
+<div class="card">
+  <p><span class="status status-<%= issue.status %>"><%= issue.status %></span></p>
+  <p><%= issue.description || 'No description.' %></p>
+  <p class="meta-line">
+    Created by <strong><%= issue.creator ? issue.creator.name : '—' %></strong>
+    &middot;
+    Assigned to <strong><%= issue.assignee ? issue.assignee.name : '(unassigned)' %></strong>
+  </p>
+</div>
 
-<h3>Comments</h3>
-<% if (issue.comments.length === 0) { %>
-  <p>No comments yet.</p>
-<% } else { %>
-  <% issue.comments.forEach(function(comment) { %>
-    <div class="comment">
-      <div class="meta"><strong><%= comment.author ? comment.author.name : '—' %></strong> &middot; <%= comment.createdAt.toLocaleString() %></div>
-      <div><%= comment.body %></div>
-    </div>
-  <% }); %>
-<% } %>
+<div class="card">
+  <h3>Comments</h3>
+  <% if (issue.comments.length === 0) { %>
+    <p class="meta-line">No comments yet.</p>
+  <% } else { %>
+    <% issue.comments.forEach(function(comment) { %>
+      <div class="comment">
+        <div class="meta"><strong><%= comment.author ? comment.author.name : '—' %></strong> &middot; <%= comment.createdAt.toLocaleString() %></div>
+        <div><%= comment.body %></div>
+      </div>
+    <% }); %>
+  <% } %>
 
-<form method="POST" action="/issues/<%= issue.id %>/comments" style="margin-top: 1rem;">
-  <label for="body">Add a comment</label>
-  <textarea id="body" name="body" rows="3" required></textarea>
-  <button class="btn" type="submit" style="margin-top: 0.5rem;">Post Comment</button>
-</form>
+  <form method="POST" action="/issues/<%= issue.id %>/comments" style="margin-top: 1.25rem;">
+    <label for="body">Add a comment</label>
+    <textarea id="body" name="body" rows="3" required></textarea>
+    <div class="form-actions"><button class="btn" type="submit">Post Comment</button></div>
+  </form>
+</div>
 
 <%- include('../partials/foot') %>

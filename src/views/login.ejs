@@ -1,15 +1,17 @@
 <%- include('partials/head', { title: 'Log in — Project Tracker', currentUser: null }) %>
 
-<h2>Who are you?</h2>
-<form method="POST" action="/login">
-  <label for="userId">Pick your name</label>
-  <select name="userId" id="userId" required>
-    <option value="" disabled selected>Select a name...</option>
-    <% users.forEach(function(user) { %>
-      <option value="<%= user.id %>"><%= user.name %></option>
-    <% }); %>
-  </select>
-  <button class="btn" type="submit" style="margin-top: 1rem;">Continue</button>
-</form>
+<div class="card" style="max-width: 380px; margin: 3rem auto 0;">
+  <h2 style="margin-top: 0;">Who are you?</h2>
+  <form method="POST" action="/login">
+    <label for="userId">Pick your name</label>
+    <select name="userId" id="userId" required>
+      <option value="" disabled selected>Select a name...</option>
+      <% users.forEach(function(user) { %>
+        <option value="<%= user.id %>"><%= user.name %></option>
+      <% }); %>
+    </select>
+    <div class="form-actions"><button class="btn" type="submit" style="width: 100%;">Continue</button></div>
+  </form>
+</div>
 
 <%- include('partials/foot') %>

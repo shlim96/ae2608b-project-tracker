@@ -16,5 +16,9 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
+  },
+  "overrides": {
+    "tar": "^7.5.22",
+    "uuid": "^14.0.2"
   }
 }
