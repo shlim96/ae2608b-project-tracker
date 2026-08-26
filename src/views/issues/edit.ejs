@@ -1,0 +1,36 @@
+<%- include('../partials/head', { title: 'Edit Issue — Project Tracker' }) %>
+
+<h2>Edit Issue</h2>
+<% if (typeof error !== 'undefined' && error) { %>
+  <p class="error"><%= error %></p>
+<% } %>
+<form method="POST" action="/issues/<%= issue.id %>">
+  <label for="title">Title</label>
+  <input type="text" id="title" name="title" value="<%= issue.title %>" required />
+
+  <label for="description">Description</label>
+  <textarea id="description" name="description" rows="4"><%= issue.description || '' %></textarea>
+
+  <label for="status">Status</label>
+  <select id="status" name="status">
+    <option value="todo" <%= issue.status === 'todo' ? 'selected' : '' %>>To Do</option>
+    <option value="in_progress" <%= issue.status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
+    <option value="done" <%= issue.status === 'done' ? 'selected' : '' %>>Done</option>
+  </select>
+
+  <label for="assigneeId">Assignee</label>
+  <select id="assigneeId" name="assigneeId">
+    <option value="">(unassigned)</option>
+    <% users.forEach(function(user) { %>
+      <option value="<%= user.id %>" <%= issue.assigneeId === user.id ? 'selected' : '' %>><%= user.name %></option>
+    <% }); %>
+  </select>
+
+  <button class="btn" type="submit" style="margin-top: 1rem;">Save Changes</button>
+</form>
+
+<form class="inline" method="POST" action="/issues/<%= issue.id %>/delete" style="margin-top: 1rem;" onsubmit="return confirm('Delete this issue?');">
+  <button class="btn btn-danger" type="submit">Delete Issue</button>
+</form>
+
+<%- include('../partials/foot') %>

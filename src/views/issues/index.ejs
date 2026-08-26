@@ -1,0 +1,28 @@
+<%- include('../partials/head', { title: 'Issues — Project Tracker' }) %>
+
+<div style="display:flex; justify-content: space-between; align-items: center;">
+  <h2>All Issues</h2>
+  <a class="btn" href="/issues/new">+ New Issue</a>
+</div>
+
+<% if (issues.length === 0) { %>
+  <p>No issues yet. Create the first one.</p>
+<% } else { %>
+  <table>
+    <thead>
+      <tr><th>Title</th><th>Status</th><th>Creator</th><th>Assignee</th></tr>
+    </thead>
+    <tbody>
+      <% issues.forEach(function(issue) { %>
+        <tr>
+          <td><a href="/issues/<%= issue.id %>"><%= issue.title %></a></td>
+          <td><span class="status status-<%= issue.status %>"><%= issue.status %></span></td>
+          <td><%= issue.creator ? issue.creator.name : '—' %></td>
+          <td><%= issue.assignee ? issue.assignee.name : '(unassigned)' %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+<% } %>
+
+<%- include('../partials/foot') %>
