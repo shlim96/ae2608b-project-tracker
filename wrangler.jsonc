@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "ae2608b-project-tracker",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-08-01",
+  "observability": {
+    "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ae2608b-project-tracker",
+      "database_id": "90f3c2bd-8835-473e-84d8-498dd0f59e67",
+      "migrations_dir": "./migrations"
+    }
+  ]
+}

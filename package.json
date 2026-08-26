@@ -5,17 +5,23 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "worker:dev": "wrangler dev",
+    "worker:deploy": "wrangler deploy",
+    "worker:migrate:local": "wrangler d1 migrations apply ae2608b-project-tracker --local",
+    "worker:migrate:remote": "wrangler d1 migrations apply ae2608b-project-tracker --remote"
   },
   "dependencies": {
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
+    "hono": "^4.13.5",
     "sequelize": "^6.37.3",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "wrangler": "^4.126.0"
   },
   "overrides": {
     "tar": "^7.5.22",
