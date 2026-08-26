@@ -9,7 +9,8 @@
     "worker:dev": "wrangler dev",
     "worker:deploy": "wrangler deploy",
     "worker:migrate:local": "wrangler d1 migrations apply ae2608b-project-tracker --local",
-    "worker:migrate:remote": "wrangler d1 migrations apply ae2608b-project-tracker --remote"
+    "worker:migrate:remote": "wrangler d1 migrations apply ae2608b-project-tracker --remote",
+    "test": "jest"
   },
   "dependencies": {
     "ejs": "^3.1.10",
@@ -20,7 +21,9 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
+    "jest": "^30.4.2",
     "nodemon": "^3.1.4",
+    "supertest": "^7.2.2",
     "wrangler": "^4.126.0"
   },
   "overrides": {
