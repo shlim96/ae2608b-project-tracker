@@ -122,6 +122,19 @@ issues.post('/:id/comments', async (c) => {
 
 const app = new Hono();
 
+app.use('*', async (c, next) => {
+  if (!c.env.SESSION_SECRET) {
+    return c.html(
+      errorView({
+        message: 'Server misconfigured: SESSION_SECRET is not set. See README for setup.',
+        currentUser: null,
+      }),
+      500
+    );
+  }
+  return next();
+});
+
 app.get('/', (c) => c.redirect('/issues'));
 app.route('/', auth);
 app.route('/issues', issues);

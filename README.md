@@ -45,4 +45,53 @@ src/
   middleware/auth.js  # requireLogin, requireOwnerOrAssignee
   routes/           # auth.js, issues.js
   views/            # EJS templates
+
+worker/             # Cloudflare Workers port (Hono + D1) of the same app
+  index.js          # Worker entry point / routes
+  session.js        # signed-cookie session handling
+  db.js             # D1 queries
+  views.js          # HTML views
+  middleware.js     # requireLogin, requireOwnerOrAssignee
+
+migrations/         # D1 (SQLite) schema migrations for the worker
 ```
+
+## Deploying to Cloudflare
+
+The `worker/` directory is a second implementation of this app that runs on Cloudflare Workers with D1 instead of Express/SQLite. It uses the `worker:*` npm scripts and `wrangler.jsonc`.
+
+1. **Create your own D1 database** (the `database_id` in `wrangler.jsonc` belongs to the original author's account and won't work for you):
+
+   ```bash
+   npx wrangler d1 create ae2608b-project-tracker
+   ```
+
+   Copy the `database_id` from the output into `wrangler.jsonc`.
+
+2. **Run migrations** — the worker will 500 with `no such table: users` until this is done:
+
+   ```bash
+   npm run worker:migrate:local    # for local `wrangler dev`
+   npm run worker:migrate:remote   # for the deployed worker
+   ```
+
+3. **Set `SESSION_SECRET`** — `worker/session.js` signs the session cookie with it; without it, `/login` returns a 500.
+
+   - Local dev: copy `.dev.vars.example` to `.dev.vars` (gitignored) and set a real value:
+
+     ```bash
+     cp .dev.vars.example .dev.vars
+     ```
+
+   - Deployed worker:
+
+     ```bash
+     npx wrangler secret put SESSION_SECRET
+     ```
+
+4. **Run or deploy:**
+
+   ```bash
+   npm run worker:dev      # local dev server via wrangler
+   npm run worker:deploy   # deploy to Cloudflare
+   ```
