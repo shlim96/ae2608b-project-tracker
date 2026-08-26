@@ -33,4 +33,10 @@ app.use((req, res) => {
   res.status(404).render('error', { message: 'Page not found', currentUser: req.currentUser || null });
 });
 
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).render('error', { message: 'Something went wrong', currentUser: req.currentUser || null });
+});
+
 module.exports = app;

@@ -1,12 +1,15 @@
 const express = require('express');
 const { User, Issue, Comment } = require('../db/models');
 const { requireLogin, requireOwnerOrAssignee } = require('../middleware/auth');
+const asyncHandler = require('../middleware/asyncHandler');
 
 const router = express.Router();
 
+const ISSUE_STATUSES = ['todo', 'in_progress', 'done'];
+
 router.use(requireLogin);
 
-router.get('/', async (req, res) => {
+router.get('/', asyncHandler(async (req, res) => {
   const issues = await Issue.findAll({
     include: [
       { model: User, as: 'creator' },
@@ -15,14 +18,14 @@ router.get('/', async (req, res) => {
     order: [['createdAt', 'DESC']],
   });
   res.render('issues/index', { issues });
-});
+}));
 
-router.get('/new', async (req, res) => {
+router.get('/new', asyncHandler(async (req, res) => {
   const users = await User.findAll({ order: [['name', 'ASC']] });
   res.render('issues/new', { users });
-});
+}));
 
-router.post('/', async (req, res) => {
+router.post('/', asyncHandler(async (req, res) => {
   const { title, description, assigneeId } = req.body;
   if (!title || !title.trim()) {
     const users = await User.findAll({ order: [['name', 'ASC']] });
@@ -35,9 +38,9 @@ router.post('/', async (req, res) => {
     assigneeId: assigneeId || null,
   });
   res.redirect(`/issues/${issue.id}`);
-});
+}));
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', asyncHandler(async (req, res) => {
   const issue = await Issue.findByPk(req.params.id, {
     include: [
       { model: User, as: 'creator' },
@@ -50,18 +53,24 @@ router.get('/:id', async (req, res) => {
   }
   const canManage = issue.creatorId === req.currentUser.id || issue.assigneeId === req.currentUser.id;
   res.render('issues/show', { issue, canManage });
-});
+}));
 
-router.get('/:id/edit', requireOwnerOrAssignee, async (req, res) => {
+router.get('/:id/edit', requireOwnerOrAssignee, asyncHandler(async (req, res) => {
   const users = await User.findAll({ order: [['name', 'ASC']] });
   res.render('issues/edit', { issue: req.issue, users });
-});
+}));
 
-router.post('/:id', requireOwnerOrAssignee, async (req, res) => {
+router.post('/:id', requireOwnerOrAssignee, asyncHandler(async (req, res) => {
   const { title, description, status, assigneeId } = req.body;
+  const users = await User.findAll({ order: [['name', 'ASC']] });
   if (!title || !title.trim()) {
-    const users = await User.findAll({ order: [['name', 'ASC']] });
     return res.status(400).render('issues/edit', { issue: req.issue, users, error: 'Title is required.' });
+  }
+  if (!ISSUE_STATUSES.includes(status)) {
+    return res.status(400).render('issues/edit', { issue: req.issue, users, error: 'Invalid status.' });
+  }
+  if (assigneeId && !users.some((u) => String(u.id) === String(assigneeId))) {
+    return res.status(400).render('issues/edit', { issue: req.issue, users, error: 'Invalid assignee.' });
   }
   await req.issue.update({
     title: title.trim(),
@@ -70,14 +79,14 @@ router.post('/:id', requireOwnerOrAssignee, async (req, res) => {
     assigneeId: assigneeId || null,
   });
   res.redirect(`/issues/${req.issue.id}`);
-});
+}));
 
-router.post('/:id/delete', requireOwnerOrAssignee, async (req, res) => {
+router.post('/:id/delete', requireOwnerOrAssignee, asyncHandler(async (req, res) => {
   await req.issue.destroy();
   res.redirect('/issues');
-});
+}));
 
-router.post('/:id/comments', async (req, res) => {
+router.post('/:id/comments', asyncHandler(async (req, res) => {
   const issue = await Issue.findByPk(req.params.id);
   if (!issue) {
     return res.status(404).render('error', { message: 'Issue not found' });
@@ -91,6 +100,6 @@ router.post('/:id/comments', async (req, res) => {
     });
   }
   res.redirect(`/issues/${issue.id}`);
-});
+}));
 
 module.exports = router;

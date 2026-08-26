@@ -1,6 +1,7 @@
 const { User, Issue } = require('../db/models');
+const asyncHandler = require('./asyncHandler');
 
-async function requireLogin(req, res, next) {
+const requireLogin = asyncHandler(async (req, res, next) => {
   if (!req.session.userId) {
     return res.redirect('/login');
   }
@@ -12,9 +13,9 @@ async function requireLogin(req, res, next) {
   req.currentUser = user;
   res.locals.currentUser = user;
   next();
-}
+});
 
-async function requireOwnerOrAssignee(req, res, next) {
+const requireOwnerOrAssignee = asyncHandler(async (req, res, next) => {
   const issue = await Issue.findByPk(req.params.id);
   if (!issue) {
     return res.status(404).render('error', { message: 'Issue not found', currentUser: req.currentUser });
@@ -28,6 +29,6 @@ async function requireOwnerOrAssignee(req, res, next) {
   }
   req.issue = issue;
   next();
-}
+});
 
 module.exports = { requireLogin, requireOwnerOrAssignee };

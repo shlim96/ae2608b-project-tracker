@@ -13,6 +13,8 @@ import {
 import { loginView, errorView, issuesIndexView, issuesNewView, issueShowView, issuesEditView } from './views.js';
 import { requireLogin, requireOwnerOrAssignee } from './middleware.js';
 
+const ISSUE_STATUSES = ['todo', 'in_progress', 'done'];
+
 const auth = new Hono();
 
 auth.get('/login', async (c) => {
@@ -86,15 +88,22 @@ issues.post('/:id', requireOwnerOrAssignee, async (c) => {
   const issue = c.get('issue');
   const body = await c.req.parseBody();
   const title = typeof body.title === 'string' ? body.title.trim() : '';
+  const users = await getUsers(c.env.DB);
   if (!title) {
-    const users = await getUsers(c.env.DB);
     return c.html(issuesEditView({ issue, users, currentUser, error: 'Title is required.' }), 400);
+  }
+  if (!ISSUE_STATUSES.includes(body.status)) {
+    return c.html(issuesEditView({ issue, users, currentUser, error: 'Invalid status.' }), 400);
+  }
+  const assigneeId = body.assigneeId ? Number(body.assigneeId) : null;
+  if (assigneeId !== null && !users.some((u) => u.id === assigneeId)) {
+    return c.html(issuesEditView({ issue, users, currentUser, error: 'Invalid assignee.' }), 400);
   }
   await updateIssue(c.env.DB, issue.id, {
     title,
     description: body.description ? String(body.description).trim() : null,
     status: body.status,
-    assigneeId: body.assigneeId ? Number(body.assigneeId) : null,
+    assigneeId,
   });
   return c.redirect(`/issues/${issue.id}`);
 });
@@ -127,5 +136,10 @@ app.route('/', auth);
 app.route('/issues', issues);
 
 app.notFound((c) => c.html(errorView({ message: 'Page not found', currentUser: c.get('currentUser') ?? null }), 404));
+
+app.onError((err, c) => {
+  console.error(err);
+  return c.html(errorView({ message: 'Something went wrong', currentUser: c.get('currentUser') ?? null }), 500);
+});
 
 export default app;
